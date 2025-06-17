@@ -1021,7 +1021,7 @@
                 const angle = Math.random() * Math.PI * 2;
                 const distance = 100 + Math.random() * 1200; // Wider spread for debris
                 const endX = viewportCenterX + Math.cos(angle) * distance;
-                const endY = viewportCenterY + Math.sin(angle) * distance;
+                const endY = viewportCenterX + Math.sin(angle) * distance;
                 const rot = (Math.random() - 0.5) * 3000; // Very fast rotation
                 const scale = Math.random() * 0.02; // Almost invisible at end
 
@@ -1149,13 +1149,12 @@
 
         // --- Music Player Modal Logic ---
         const playlist = [
-            { title: "Calm Coffee Morning", src: "/sample-mp3-file.mp3" },
-            { title: "Fair Trade Journey", src: "/SoundHelix-Song-2.mp3" },
-            { title: "Global Harmony", src: "/SoundHelix-Song-3.mp3" }
-            // IMPORTANT: Place YOUR actual music files (e.g., 'song1.mp3')
-            // in the same directory as your index.html file.
-            // Then update the 'src' paths here to match, e.g.:
-            // { title: "My Awesome Song", src: "/song1.mp3" }
+            // IMPORTANT: Place your actual music files inside a 'public' folder
+            // in the root of your Vercel project.
+            // Then update the 'src' paths here to prepend '/public/', e.g.:
+            { title: "Calm Coffee Morning", src: "/public/sample-mp3-file.mp3" },
+            { title: "Fair Trade Journey", src: "/public/SoundHelix-Song-2.mp3" },
+            { title: "Global Harmony", src: "/public/SoundHelix-Song-3.mp3" }
         ];
 
         let currentSongIndex = 0;
