@@ -948,7 +948,7 @@
         <div class="music-modal-content">
             <button class="close-modal-button" id="close-music-modal">&times;</button>
             <div class="current-song-title-modal" id="current-song-title-modal"></div>
-            <audio id="audio-player-modal" controls autoplay muted></audio>
+            <audio id="audio-player-modal" controls autoplay></audio>
             <div class="audio-controls-modal">
                 <button class="audio-button-modal" id="prev-song-button-modal">Previous</button>
                 <button class="audio-button-modal" id="play-pause-button-modal">Play</button>
@@ -963,18 +963,18 @@
     <!-- This overlay will appear for the flash effect -->
     <div id="flash-effect-overlay">
         <div id="flash-image-container">
-            <!-- Placeholder for Flash.png. Replace src with your actual image path. -->
+            <!-- Placeholder for Flash.jpg. Replace src with your actual image path. -->
             <img id="flash-image" src="https://placehold.co/200x200/FF6600/FFFFFF?text=FLASH" alt="Flash Image">
         </div>
     </div>
 
     <script>
         // --- Custom Message Box Functions (for quiz alerts) ---
-        // showMessageBox 関数をスクリプトの先頭に移動し、確実に利用可能にする
+        // showMessageBox function moved to the top of the script for availability
         function showMessageBox(message) {
             const msgBoxOverlay = document.getElementById('message-box-overlay');
             const msgBoxText = document.getElementById('message-box-text');
-            if (msgBoxOverlay && msgBoxText) { // 要素が存在することを確認
+            if (msgBoxOverlay && msgBoxText) { // Ensure elements exist
                 msgBoxText.textContent = message;
                 msgBoxOverlay.style.display = 'flex';
             } else {
@@ -982,10 +982,10 @@
             }
         }
 
-        // hideMessageBox 関数をスクリプトの先頭に移動し、確実に利用可能にする
+        // hideMessageBox function moved to the top of the script for availability
         function hideMessageBox() {
             const msgBoxOverlay = document.getElementById('message-box-overlay');
-            if (msgBoxOverlay) { // 要素が存在することを確認
+            if (msgBoxOverlay) { // Ensure element exists
                 msgBoxOverlay.style.display = 'none';
             } else {
                 console.error("MessageBox overlay element not found!");
@@ -1327,14 +1327,15 @@ Stand up for fairness let the whole world know`
             // Show modal whenever a new song loads/plays
             showMusicPlayerModal(); 
 
-            // Autoplay logic: attempts to play if muted, or if it was previously playing
-            if (audioPlayer.autoplay || !audioPlayer.paused) { 
+            // Autoplay logic: attempts to play if not paused.
+            // Browsers may still block unmuted autoplay without user interaction.
+            if (!audioPlayer.paused) { 
                  audioPlayer.play().then(() => {
                     // Autoplay successful, button text set in play event listener
                  }).catch(error => {
                     console.warn("Autoplay was prevented:", error);
                     // Inform user they might need to click play manually
-                    showMessage("Autoplay prevented by browser. Please press 'Play' on the music player to start music (it might be muted).");
+                    showMessage("Autoplay prevented by browser. Please press 'Play' on the music player to start music.");
                     playPauseButton.textContent = 'Play'; // Ensure button reflects state
                 });
             } else {
