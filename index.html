@@ -949,11 +949,6 @@
             <button class="close-modal-button" id="close-music-modal">&times;</button>
             <div class="current-song-title-modal" id="current-song-title-modal"></div>
             <audio id="audio-player-modal" controls autoplay></audio>
-            <div class="audio-controls-modal">
-                <button class="audio-button-modal" id="prev-song-button-modal">Previous</button>
-                <button class="audio-button-modal" id="play-pause-button-modal">Play</button>
-                <button class="audio-button-modal" id="next-song-button-modal">Next</button>
-            </div>
             <div class="lyrics-container" id="lyrics-container">
                 <!-- Lyrics will be loaded here -->
             </div>
@@ -963,8 +958,8 @@
     <!-- This overlay will appear for the flash effect -->
     <div id="flash-effect-overlay">
         <div id="flash-image-container">
-            <!-- Updated src to Flash.jpg -->
-            <img id="flash-image" src="/public/Flash.jpg" alt="Flash Image">
+            <!-- Updated src to Flash.jpg and added onerror fallback -->
+            <img id="flash-image" src="/public/Flash.jpg" alt="Flash Image" onerror="this.onerror=null;this.src='https://placehold.co/200x200/FF6600/FFFFFF?text=FLASH';">
         </div>
     </div>
 
@@ -1019,27 +1014,28 @@
             hideMusicPlayerModal();
             audioPlayer.pause();
 
-
-            // Show overlay and image container
+            // Set overlay and image container to visible and fully opaque INSTANTLY for the image
             flashEffectOverlay.style.display = 'flex';
             flashImageContainer.style.display = 'flex';
+            // Disable transition temporarily for instant image appearance
+            flashImageContainer.style.transition = 'none';
+            flashImageContainer.style.opacity = '1'; // Make image instantly visible
 
-            // Phase 1: Show Flash Image
-            setTimeout(() => {
-                flashImageContainer.style.opacity = '1'; // Fade in the image
-            }, 50); // Small delay to ensure display property takes effect
-
+            // Phase 1: Image is now visible instantly. It stays for 1.5 seconds.
             setTimeout(() => {
                 // Phase 2: Fade out image, flash screen white
-                flashImageContainer.style.opacity = '0'; // Fade out the image
+                flashImageContainer.style.opacity = '0'; // Image fades out (over its original 0.5s transition, which we re-enabled below)
+                // Re-enable transition for flashImageContainer for smooth fade-out next time it's used
+                flashImageContainer.style.transition = 'opacity 0.5s ease-in-out'; 
+
                 flashEffectOverlay.style.transition = 'background-color 0.1s linear, opacity 0.1s linear'; /* Faster flash transition */
                 flashEffectOverlay.style.backgroundColor = 'white'; // Change to white
-                flashEffectOverlay.style.opacity = '1'; // Full white
+                flashEffectOverlay.style.opacity = '1'; // Full white (instant flash bang)
             }, 1500); // Image visible for 1.5 seconds
 
             setTimeout(() => {
                 // Phase 3: Hold white screen, then fade out
-                flashEffectOverlay.style.transition = 'background-color 1s ease-out, opacity 1s ease-out'; /* Smooth fade out */
+                flashEffectOverlay.style.transition = 'background-color 1s ease-out, opacity 1s ease-out'; /* Smooth fade out of white */
                 flashEffectOverlay.style.opacity = '0'; // Fade out white
             }, 1500 + 2000); // White screen held for 2 seconds (1.5s image + 2s white)
 
