@@ -567,67 +567,49 @@
             transform: scale(1.05);
         }
 
-        /* Explosion Overlay (covers everything, hosts fragments) */
-        #explosion-overlay {
+        /* Flash Effect Overlay */
+        #flash-effect-overlay {
             position: fixed;
             top: 0;
             left: 0;
-            width: 100vw;
-            height: 100vh;
-            background-color: rgba(0, 0, 0, 0); /* Starts transparent */
-            z-index: 10002; /* Above all other content and message box */
-            pointer-events: none; /* Allows clicks to pass through initially */
-            overflow: hidden; /* Contains debris */
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0); /* Start transparent */
+            z-index: 100000; /* Ensure it's on top of everything */
+            display: none; /* Hidden by default */
+            justify-content: center;
+            align-items: center;
+            opacity: 0; /* Controlled by JS/animation */
+            pointer-events: none; /* Allow interaction through it when hidden */
+            transition: background-color 0.5s ease-out, opacity 1s ease-out; /* Smooth transition for flash */
         }
 
-        /* Individual fragments of the exploding page */
-        .page-fragment {
-            position: fixed; /* Must be fixed to move independently */
-            background-color: #ff6600; /* Default fragment color */
-            opacity: 0; /* Start invisible */
-            pointer-events: none; /* No interaction */
-            animation: fragmentDisperse 1.8s forwards ease-out;
-            /* Custom properties --dx, --dy, --rot, --scale, --delay set by JS */
+        /* Container for the flash image */
+        #flash-image-container {
+            display: none; /* Hidden by default, shown by JS */
+            opacity: 0; /* Controlled by JS animation */
+            transition: opacity 0.5s ease-in-out; /* Fade in/out for image */
+            display: flex; /* Use flex to center image within its container */
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+            position: absolute; /* Needed for img to fill */
+            top: 0;
+            left: 0;
         }
 
-        @keyframes fragmentDisperse {
-            0% {
-                transform: translate(0, 0) rotate(0deg) scale(1);
-                opacity: 1; /* Fade in briefly then out */
-            }
-            100% {
-                transform: translate(var(--dx), var(--dy)) rotate(var(--rot)) scale(var(--scale));
-                opacity: 0;
-            }
+        #flash-image {
+            width: 100vw; /* Make image fill viewport width */
+            height: 100vh; /* Make image fill viewport height */
+            object-fit: cover; /* Cover the entire screen */
+            border-radius: 0; /* Remove rounded corners for full screen effect */
+            box-shadow: none; /* Remove box-shadow for full screen effect */
+            position: absolute; /* Position absolutely within its container */
+            top: 0;
+            left: 0;
         }
 
-        /* Debris particles for the explosion */
-        .explosion-debris {
-            position: absolute;
-            background-color: #ff6600;
-            border-radius: 50%;
-            opacity: 0;
-            pointer-events: none;
-            animation: debrisBurst 2s forwards ease-out; /* Longer animation for debris */
-            /* --start-x, --start-y, --end-x, --end-y, --rot, --scale, --size, --delay set by JS */
-            width: var(--size);
-            height: var(--size);
-        }
-
-        @keyframes debrisBurst {
-            0% {
-                transform: translate(var(--start-x), var(--start-y)) scale(0);
-                opacity: 0;
-            }
-            20% {
-                opacity: 1;
-                transform: translate(var(--start-x), var(--start-y)) scale(1);
-            }
-            100% {
-                transform: translate(var(--end-x), var(--end-y)) rotate(var(--rot)) scale(var(--scale));
-                opacity: 0;
-            }
-        }
 
         /* Music Player Modal Styles */
         #music-player-modal {
@@ -649,8 +631,7 @@
         }
 
         .music-modal-content {
-            background: rgba(0, 0, 0, 0.9); /* Darker background for visibility */
-            backdrop-filter: blur(10px);
+            background: #000; /* Changed to solid black for full opacity */
             border-bottom-left-radius: 15px;
             border-bottom-right-radius: 15px;
             border: 2px solid #ff6600;
@@ -967,7 +948,7 @@
         <div class="music-modal-content">
             <button class="close-modal-button" id="close-music-modal">&times;</button>
             <div class="current-song-title-modal" id="current-song-title-modal"></div>
-            <audio id="audio-player-modal" controls></audio>
+            <audio id="audio-player-modal" controls autoplay muted></audio>
             <div class="audio-controls-modal">
                 <button class="audio-button-modal" id="prev-song-button-modal">Previous</button>
                 <button class="audio-button-modal" id="play-pause-button-modal">Play</button>
@@ -979,10 +960,38 @@
         </div>
     </div>
 
-    <!-- This overlay will appear during the explosion and host fragments -->
-    <div id="explosion-overlay"></div>
+    <!-- This overlay will appear for the flash effect -->
+    <div id="flash-effect-overlay">
+        <div id="flash-image-container">
+            <!-- Placeholder for Flash.png. Replace src with your actual image path. -->
+            <img id="flash-image" src="https://placehold.co/200x200/FF6600/FFFFFF?text=FLASH" alt="Flash Image">
+        </div>
+    </div>
 
     <script>
+        // --- Custom Message Box Functions (for quiz alerts) ---
+        // showMessageBox 関数をスクリプトの先頭に移動し、確実に利用可能にする
+        function showMessageBox(message) {
+            const msgBoxOverlay = document.getElementById('message-box-overlay');
+            const msgBoxText = document.getElementById('message-box-text');
+            if (msgBoxOverlay && msgBoxText) { // 要素が存在することを確認
+                msgBoxText.textContent = message;
+                msgBoxOverlay.style.display = 'flex';
+            } else {
+                console.error("MessageBox elements not found!");
+            }
+        }
+
+        // hideMessageBox 関数をスクリプトの先頭に移動し、確実に利用可能にする
+        function hideMessageBox() {
+            const msgBoxOverlay = document.getElementById('message-box-overlay');
+            if (msgBoxOverlay) { // 要素が存在することを確認
+                msgBoxOverlay.style.display = 'none';
+            } else {
+                console.error("MessageBox overlay element not found!");
+            }
+        }
+
         // --- Utility Functions ---
         function shuffleArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
@@ -991,155 +1000,72 @@
             }
         }
 
-        // --- Custom Message Box Functions (for quiz alerts) ---
-        function showMessageBox(message) {
-            const msgBoxOverlay = document.getElementById('message-box-overlay');
-            const msgBoxText = document.getElementById('message-box-text');
-            msgBoxText.textContent = message;
-            msgBoxOverlay.style.display = 'flex';
-        }
-
-        function hideMessageBox() {
-            const msgBoxOverlay = document.getElementById('message-box-overlay');
-            msgBoxOverlay.style.display = 'none';
-        }
-
-        // --- GLOBAL WEBSITE EXPLOSION LOGIC ---
+        // --- GLOBAL WEBSITE FLASH BANG LOGIC ---
         document.getElementById('explore-button').addEventListener('click', function(event) {
             event.preventDefault(); // Prevent default anchor behavior
 
-            const body = document.body;
-            const explosionOverlay = document.getElementById('explosion-overlay');
-            const musicPlayerModal = document.getElementById('music-player-modal');
+            const flashEffectOverlay = document.getElementById('flash-effect-overlay');
+            const flashImageContainer = document.getElementById('flash-image-container');
+            const mainContent = document.querySelector('main');
+            const header = document.querySelector('header');
+            const footer = document.querySelector('footer');
 
-            // 1. Instantly turn background black and prepare overlay
-            body.classList.add('exploding-background');
-            explosionOverlay.style.pointerEvents = 'auto'; // Block all interactions on the page
-
-            // Immediately hide the music player modal before explosion
+            // Hide the main content instantly to prepare for flash
+            if (mainContent) mainContent.style.display = 'none';
+            if (header) header.style.display = 'none';
+            if (footer) footer.style.display = 'none';
+            
+            // Immediately hide music player and pause audio
             hideMusicPlayerModal();
-            audioPlayer.pause(); // Pause any playing music
+            audioPlayer.pause();
 
-            // Get all major content elements to explode
-            const elementsToFragment = [
-                document.getElementById('page-header'),
-                document.getElementById('home'),
-                document.getElementById('learn'),
-                document.getElementById('quiz'),
-                document.getElementById('action'),
-                document.getElementById('story-generator'),
-                document.getElementById('about-us'),
-                document.getElementById('page-footer')
-            ].filter(Boolean); // Filter out any nulls if an ID wasn't found
 
-            const viewportCenterX = window.innerWidth / 2;
-            const viewportCenterY = window.innerHeight / 2;
+            // Show overlay and image container
+            flashEffectOverlay.style.display = 'flex';
+            flashImageContainer.style.display = 'flex';
 
-            // 2. Fragment each major element and animate
-            elementsToFragment.forEach(el => {
-                const rect = el.getBoundingClientRect();
-                
-                // Determine the number and size of fragments for variety
-                const area = rect.width * rect.height;
-                let numFragments = 50; // Base number
-                if (area > 100000) numFragments = 100; // More fragments for larger elements
-                if (area > 300000) numFragments = 200; // Even more for very large ones
-
-                const baseFragmentSize = 15; // Smaller base size for more fragments
-                const maxFragmentSizeVariation = 25; // Max 40px fragments
-
-                // Random position within the original element's bounds
-                const fragmentX = rect.left + Math.random() * (rect.width - fragmentSize);
-                const fragmentY = rect.top + Math.random() * (rect.height - fragmentSize);
-
-                const fragment = document.createElement('div');
-                fragment.className = 'page-fragment';
-                fragment.style.left = `${fragmentX}px`;
-                fragment.style.top = `${fragmentY}px`;
-                fragment.style.width = `${fragmentSize}px`;
-                fragment.style.height = `${fragmentSize}px`;
-
-                // Calculate explosion trajectory from fragment's position relative to center of viewport
-                const dx = (fragmentX + fragmentSize / 2 - viewportCenterX) * (1.5 + Math.random() * 1.5); // More spread
-                const dy = (fragmentY + fragmentSize / 2 - viewportCenterY) * (1.5 + Math.random() * 1.5);
-                const rot = (Math.random() - 0.5) * 2000; // Faster, more rotations
-                const scale = 0.01 + Math.random() * 0.05; // Explode into tiny, almost invisible pieces
-                
-                // Assign a random background color (mix of black and orange hues)
-                const color = Math.random() < 0.5 ? '#ff6600' : (Math.random() < 0.8 ? '#1a1a1a' : '#2d2d2d');
-                fragment.style.backgroundColor = color;
-
-                fragment.style.setProperty('--dx', `${dx}px`);
-                fragment.style.setProperty('--dy', `${dy}px`);
-                fragment.style.setProperty('--rot', `${rot}deg`);
-                fragment.style.setProperty('--scale', `${scale}`);
-                
-                const delay = Math.random() * 0.6; // Stagger fragment animation slightly longer
-                fragment.style.animationDelay = `${delay}s`;
-
-                explosionOverlay.appendChild(fragment);
-            });
-            // Important: Remove original elements after fragments are created
-            elementsToFragment.forEach(el => el.remove());
-
-            // 3. Create and animate central debris particles
-            const numDebrisParticles = 400; // Even more debris!
-            for (let i = 0; i < numDebrisParticles; i++) {
-                const particle = document.createElement('div');
-                particle.className = 'explosion-debris';
-                
-                const size = 2 + Math.random() * 8; // Smaller debris particles (2px to 10px)
-                
-                particle.style.setProperty('--start-x', `${viewportCenterX}px`);
-                particle.style.setProperty('--start-y', `${viewportCenterY}px`);
-
-                const angle = Math.random() * Math.PI * 2;
-                const distance = 100 + Math.random() * 1200; // Wider spread for debris
-                const endX = viewportCenterX + Math.cos(angle) * distance;
-                const endY = viewportCenterY + Math.sin(angle) * distance;
-                const rot = (Math.random() - 0.5) * 3000; // Very fast rotation
-                const scale = Math.random() * 0.02; // Almost invisible at end
-
-                particle.style.setProperty('--end-x', `${endX}px`);
-                particle.style.setProperty('--end-y', `${endY}px`);
-                particle.style.setProperty('--rot', `${rot}deg`);
-                particle.style.setProperty('--scale', `${scale}`);
-                particle.style.setProperty('--size', `${size}px`);
-                
-                const delay = Math.random() * 1.0; // Stagger debris explosion more
-                particle.style.animationDelay = `${delay}s`;
-
-                explosionOverlay.appendChild(particle);
-            }
-
-            // 4. Final state: Clear page and make unusable
-            const totalAnimationDuration = 2000 + 500; // Max debris animation + buffer
+            // Phase 1: Show Flash Image
             setTimeout(() => {
-                // Remove all remaining fragments and debris
-                Array.from(explosionOverlay.children).forEach(child => child.remove());
-                explosionOverlay.remove(); // Remove the overlay itself
+                flashImageContainer.style.opacity = '1'; // Fade in the image
+            }, 50); // Small delay to ensure display property takes effect
 
-                // Clear the body completely
-                body.innerHTML = '';
-                body.style.pointerEvents = 'none'; // Absolutely no interaction
-                body.style.overflow = 'hidden'; // No scrollbars on blank page
+            setTimeout(() => {
+                // Phase 2: Fade out image, flash screen white
+                flashImageContainer.style.opacity = '0'; // Fade out the image
+                flashEffectOverlay.style.transition = 'background-color 0.1s linear, opacity 0.1s linear'; /* Faster flash transition */
+                flashEffectOverlay.style.backgroundColor = 'white'; // Change to white
+                flashEffectOverlay.style.opacity = '1'; // Full white
+            }, 1500); // Image visible for 1.5 seconds
 
-                // Optional: add a non-interactive "ruined" message
-                const ruinedMessage = document.createElement('div');
-                ruinedMessage.style.position = 'fixed';
-                ruinedMessage.style.top = '50%';
-                ruinedMessage.style.left = '50%';
-                ruinedMessage.style.transform = 'translate(-50%, -50%)';
-                ruinedMessage.style.fontSize = '3rem';
-                ruinedMessage.style.color = '#ff6600';
-                ruinedMessage.style.fontFamily = 'Inter, sans-serif';
-                ruinedMessage.style.textAlign = 'center';
-                ruinedMessage.style.textShadow = '0 0 20px #ff6600';
-                ruinedMessage.textContent = 'PAGE RUINED! Refresh to retry.';
-                body.appendChild(ruinedMessage);
+            setTimeout(() => {
+                // Phase 3: Hold white screen, then fade out
+                flashEffectOverlay.style.transition = 'background-color 1s ease-out, opacity 1s ease-out'; /* Smooth fade out */
+                flashEffectOverlay.style.opacity = '0'; // Fade out white
+            }, 1500 + 2000); // White screen held for 2 seconds (1.5s image + 2s white)
+
+            setTimeout(() => {
+                // Phase 4: Reset everything
+                flashEffectOverlay.style.display = 'none';
+                flashImageContainer.style.display = 'none';
+                flashEffectOverlay.style.backgroundColor = 'rgba(0, 0, 0, 0)'; // Reset background color
+                flashEffectOverlay.style.transition = ''; // Remove transition for next time
+
+                // Restore main content
+                if (mainContent) mainContent.style.display = 'block';
+                if (header) header.style.display = 'block';
+                if (footer) footer.style.display = 'block';
                 
-            }, totalAnimationDuration);
+                // Scroll to the Learn section after flash-bang
+                const learnSection = document.getElementById('learn');
+                if (learnSection) {
+                    learnSection.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            }, 1500 + 2000 + 1000); // Total animation duration: Image (1.5s) + White (2s) + Fade out (1s) = 4.5 seconds
         });
+
 
         // --- Quiz functionality ---
         const quizData = [
@@ -1275,7 +1201,41 @@ A warm embrace`
             { 
                 title: "Fair and True", 
                 src: "/public/Fair and True.mp3",
-                lyrics: "Lyrics not available for 'Fair and True'."
+                lyrics: `[Verse]
+Hands stained from the grind soil on their skin
+Sweat on their brows life wearing thin
+Cheap coffee and sugar bought with no care
+Invisible workers gasping for air
+
+[Chorus]
+Fair trade fair fight give them their due
+What’s cheap for us is a life for you
+Break the chain break the greed let justice flow
+Stand up for fairness let the whole world know
+
+[Verse 2]
+Fields of gold crushed under the weight
+Of broken backs and a ruthless fate
+Coins in the pocket blood in the sand
+Fairness dies by a careless hand
+
+[Chorus]
+Fair trade fair fight give them their due
+What’s cheap for us is a life for you
+Break the chain break the greed let justice flow
+Stand up for fairness let the whole world know
+
+[Bridge]
+Don’t turn your face don’t close your eyes
+Truth’s in the dirt beneath the lies
+Pay what’s right give what’s owed
+Let their stories be told let their value show
+
+[Chorus]
+Fair trade fair fight give them their due
+What’s cheap for us is a life for you
+Break the chain break the greed let justice flow
+Stand up for fairness let the whole world know`
             },
             { 
                 title: "公正な取引 (Fair Trade)", 
@@ -1367,12 +1327,14 @@ A warm embrace`
             // Show modal whenever a new song loads/plays
             showMusicPlayerModal(); 
 
-            // Auto-play the new song only if it was already playing or set to autoplay
-            if (playPauseButton.textContent === 'Pause' || audioPlayer.autoplay) { 
-                 audioPlayer.play().catch(error => {
+            // Autoplay logic: attempts to play if muted, or if it was previously playing
+            if (audioPlayer.autoplay || !audioPlayer.paused) { 
+                 audioPlayer.play().then(() => {
+                    // Autoplay successful, button text set in play event listener
+                 }).catch(error => {
                     console.warn("Autoplay was prevented:", error);
-                    // Inform user they might need to click play manually via modal
-                    showMessage("Autoplay prevented by browser. Please press 'Play' on the music player to start music.");
+                    // Inform user they might need to click play manually
+                    showMessage("Autoplay prevented by browser. Please press 'Play' on the music player to start music (it might be muted).");
                     playPauseButton.textContent = 'Play'; // Ensure button reflects state
                 });
             } else {
@@ -1539,7 +1501,10 @@ A warm embrace`
         // --- Initial Load Logic ---
         document.addEventListener('DOMContentLoaded', () => {
             loadQuestion(); // Load the first quiz question
-            loadSong(0);    // Load the first song
+            // loadSong の呼び出しにわずかな遅延を追加し、showMessage が完全に利用可能になる時間を確保
+            setTimeout(() => {
+                loadSong(0);    // Load the first song
+            }, 100); // 100ミリ秒の遅延
             animateOnScroll(); // Apply initial scroll animations
         });
         
@@ -1547,4 +1512,3 @@ A warm embrace`
     </script>
 </body>
 </html>
-
