@@ -1149,27 +1149,29 @@
 
         // --- Music Player Modal Logic ---
         const playlist = [
-            { title: "Calm Coffee Morning", src: "https://www.learningcontainer.com/wp-content/uploads/2020/02/sample-mp3-file.mp3" },
-            { title: "Fair Trade Journey", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
-            { title: "Global Harmony", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" }
-            // IMPORTANT: Replace these with YOUR actual public music file URLs.
-            // Example: { title: "My Awesome Song", src: "/music/my_awesome_song.mp3" }
-            // For Cloudflare Pages, if you place files in a `music` folder at the root, you might use `/music/song.mp3`
+            { title: "Calm Coffee Morning", src: "/sample-mp3-file.mp3" },
+            { title: "Fair Trade Journey", src: "/SoundHelix-Song-2.mp3" },
+            { title: "Global Harmony", src: "/SoundHelix-Song-3.mp3" }
+            // IMPORTANT: Place YOUR actual music files (e.g., 'song1.mp3')
+            // in the same directory as your index.html file.
+            // Then update the 'src' paths here to match, e.g.:
+            // { title: "My Awesome Song", src: "/song1.mp3" }
         ];
 
         let currentSongIndex = 0;
-        const audioPlayer = document.getElementById('audio-player-modal'); // Updated ID
-        const currentSongTitleElement = document.getElementById('current-song-title-modal'); // Updated ID
-        const playPauseButton = document.getElementById('play-pause-button-modal'); // New button
-        const prevSongButton = document.getElementById('prev-song-button-modal'); // Updated ID
-        const nextSongButton = document.getElementById('next-song-button-modal'); // Updated ID
-        const musicPlayerModal = document.getElementById('music-player-modal'); // Modal container
+        const audioPlayer = document.getElementById('audio-player-modal');
+        const currentSongTitleElement = document.getElementById('current-song-title-modal');
+        const playPauseButton = document.getElementById('play-pause-button-modal');
+        const prevSongButton = document.getElementById('prev-song-button-modal');
+        const nextSongButton = document.getElementById('next-song-button-modal');
+        const musicPlayerModal = document.getElementById('music-player-modal');
         let hideModalTimeout; // To manage auto-hide
 
         function showMusicPlayerModal() {
             musicPlayerModal.classList.add('visible');
             clearTimeout(hideModalTimeout); // Clear any pending hide
-            hideModalTimeout = setTimeout(hideMusicPlayerModal, 5000); // Auto-hide after 5 seconds of inactivity
+            // Set a timeout to auto-hide if no interaction occurs
+            hideModalTimeout = setTimeout(hideMusicPlayerModal, 5000); 
         }
 
         function hideMusicPlayerModal() {
@@ -1201,7 +1203,7 @@
             // Show modal whenever a new song loads/plays
             showMusicPlayerModal(); 
 
-            // Auto-play the new song if it was already playing or set to autoplay
+            // Auto-play the new song only if it was already playing or set to autoplay
             if (playPauseButton.textContent === 'Pause' || audioPlayer.autoplay) { 
                  audioPlayer.play().catch(error => {
                     console.warn("Autoplay was prevented:", error);
@@ -1323,7 +1325,7 @@
                 const prompt = `Generate a very short, engaging, and age-appropriate (for 11-12 year olds) Fair Trade story (around 100-150 words) about a farmer or worker who grows/produces ${product}. Highlight how Fair Trade helps them. Make it positive and inspiring. Do not include any disclaimers or conversational filler. Just the story.`;
                 chatHistory.push({ role: "user", parts: [{ text: prompt }] });
                 const payload = { contents: chatHistory };
-                const apiKey = ""; // Canvas will provide this if empty string for gemini-2.0-flash
+                const apiKey = typeof API !== 'undefined' ? API : ''; // Using the API env variable
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
                 const response = await fetch(apiUrl, {
