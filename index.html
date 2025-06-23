@@ -104,13 +104,32 @@
         .hero {
             padding: 100px 0;
             text-align: center;
-            background: radial-gradient(circle at center, #ff6600 0%, transparent 70%);
+            /* Removed radial gradient for a cleaner background image effect */
+            /* background: radial-gradient(circle at center, #ff6600 0%, transparent 70%); */
             position: relative;
             min-height: calc(100vh - 100px);
             display: flex;
             align-items: center;
             justify-content: center;
             flex-direction: column;
+            /* Updated background image to local path */
+            background-image: url('/public/images/1.jpg'); /* Hero Section Background Image */
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            position: relative; /* Needed for overlay */
+            z-index: 1; /* Ensure content is above overlay */
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5); /* Dark overlay */
+            z-index: -1; /* Behind content */
         }
 
         .hero h1 {
@@ -176,6 +195,9 @@
             border: 2px solid transparent;
             position: relative;
             overflow: hidden;
+            display: flex; /* Added for image and content layout */
+            flex-direction: column; /* Stack image and text */
+            align-items: center; /* Center items horizontally */
         }
 
         .card::before {
@@ -199,9 +221,17 @@
             box-shadow: 0 10px 30px rgba(255, 102, 0, 0.2);
         }
 
+        .card-image { /* Added style for images in cards */
+            width: 100%; /* Make image fill card width */
+            max-height: 180px; /* Limit image height */
+            object-fit: cover; /* Cover area without distortion */
+            border-radius: 10px; /* Rounded corners for images */
+            margin-bottom: 20px; /* Space below image */
+        }
+
         .card-icon {
             font-size: 3rem;
-            margin-bottom: 20px;
+            margin-bottom: 10px; /* Reduced margin for icon */
             color: #ff6600;
         }
 
@@ -209,6 +239,10 @@
             font-size: 1.5rem;
             margin-bottom: 15px;
             color: #ff6600;
+            display: flex; /* Allow icon and text to be on one line */
+            align-items: center; /* Vertically align icon and text */
+            justify-content: center; /* Center them */
+            gap: 10px; /* Space between icon and text */
         }
 
         .card p {
@@ -307,11 +341,24 @@
             position: relative;
             overflow: hidden;
             transition: transform 0.3s ease, border-color 0.3s ease;
+            display: flex; /* For image and text alignment */
+            flex-direction: column; /* Stack image and text */
+            align-items: center; /* Center content */
         }
 
         .quote-item:hover {
             transform: translateY(-8px);
             border-color: #ff8533;
+        }
+
+        .quote-item img { /* Style for profile pictures */
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #ff6600;
+            margin-bottom: 15px;
+            box-shadow: 0 0 10px rgba(255, 102, 0, 0.5);
         }
 
         .quote-item blockquote {
@@ -352,6 +399,32 @@
             margin-top: 10px;
             z-index: 1;
             position: relative;
+        }
+
+        /* Action Section - specific styling */
+        .action-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .action-item {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: left;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px; /* Space for emoji */
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .action-item:hover {
+            border-color: #ff6600;
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(255, 102, 0, 0.2);
         }
 
         /* Story Generator Section */
@@ -494,7 +567,7 @@
                 font-size: 1.1rem;
             }
 
-            .cards-grid, .quotes-grid {
+            .cards-grid, .quotes-grid, .action-grid { /* Added action-grid here */
                 grid-template-columns: 1fr;
             }
         }
@@ -780,8 +853,8 @@
 
     <section id="home" class="hero">
         <div class="container">
-            <h1 id="hero-title">Discover Fair Trade</h1>
-            <p id="hero-paragraph">Join the mission to make the world fairer for everyone!</p>
+            <h1 id="hero-title">Hop Aboard the Fair Trade Express! 🚂</h1>
+            <p id="hero-paragraph">Ready to make a super-duper difference? Let's explore the awesome world of Fair Trade together!</p>
             <a href="#" class="cta-button" id="explore-button">Start Exploring</a>
         </div>
     </section>
@@ -793,27 +866,27 @@
                 <h2 class="section-title fade-in">What is Fair Trade All About?</h2>
                 <div class="cards-grid">
                     <div class="card fade-in">
-                        <div class="card-icon">🌍</div>
-                        <h3>What is Fair Trade?</h3>
-                        <p>Fair Trade means making sure farmers and workers around the world get paid fairly for their hard work. It's like being a good friend to people you've never met!</p>
+                        <img src="/public/images/2.jpg" alt="Fairness Image" class="card-image" onerror="this.onerror=null;this.src='https://placehold.co/300x180/ff6600/ffffff?text=Fairness';"> <!-- Fair Trade Symbol Image -->
+                        <h3><span class="card-icon">🤝</span> What is Fair Trade?</h3>
+                        <p>It's about making sure farmers & workers get a fair deal for their awesome work. Like sharing your treats fairly!</p>
                         <a href="https://bliptext.com/articles/fair-trade" target="_blank" class="learn-more">Learn More →</a>
                     </div>
                     <div class="card fade-in">
-                        <div class="card-icon">⚖️</div>
-                        <h3>Why Do We Need It?</h3>
-                        <p>Many farmers work super hard but don't earn enough money to take care of their families. Fair Trade helps fix this unfair situation!</p>
+                        <img src="/public/images/3.jpg" alt="Empowerment Image" class="card-image" onerror="this.onerror=null;this.src='https://placehold.co/300x180/ff8533/ffffff?text=Empowerment';"> <!-- Farmer working Image -->
+                        <h3><span class="card-icon">🌟</span> Why Do We Need It?</h3>
+                        <p>Many hardworking people earn too little. Fair Trade helps them get paid enough to live happy lives and send kids to school!</p>
                         <a href="https://bliptext.com/articles/fair-trade" target="_blank" class="learn-more">Learn More →</a>
                     </div>
                     <div class="card fade-in">
-                        <div class="card-icon">🍫</div>
-                        <h3>Fair Trade Products</h3>
-                        <p>From chocolate to bananas, coffee to cotton clothes - Fair Trade products are everywhere! Look for the special Fair Trade logo.</p>
+                        <img src="/public/images/4.jpg" alt="Products Image" class="card-image" onerror="this.onerror=null;this.src='https://placehold.co/300x180/ffa040/ffffff?text=Products';"> <!-- Fair Trade Products Image (e.g., chocolate, coffee) -->
+                        <h3><span class="card-icon">🛍️</span> Fair Trade Goodies!</h3>
+                        <p>Look for the Fair Trade logo on yummy chocolate, tasty bananas, cozy clothes, and more! Your shopping makes a splash!</p>
                         <a href="https://bliptext.com/articles/fair-trade" target="_blank" class="learn-more">Learn More →</a>
                     </div>
                     <div class="card fade-in">
-                        <div class="card-icon">💪</div>
-                        <h3>How It Helps</h3>
-                        <p>Fair Trade gives farmers better prices, safer working conditions, and helps their communities build schools and hospitals!</p>
+                        <img src="/public/images/5.jpg" alt="Impact Image" class="card-image" onerror="this.onerror=null;this.src='https://placehold.co/300x180/ffb555/ffffff?text=Impact';"> <!-- Community Impact Image (e.g., school, clinic) -->
+                        <h3><span class="card-icon">🚀</span> Super Impact!</h3>
+                        <p>Fair Trade means better prices, safer workplaces, and happier communities building schools and clinics!</p>
                         <a href="https://bliptext.com/articles/fair-trade" target="_blank" class="learn-more">Learn More →</a>
                     </div>
                 </div>
@@ -877,14 +950,14 @@
             <div class="container">
                 <h2 class="section-title fade-in">✨ Spin a Fair Trade Story! ✨</h2>
                 <p class="fade-in" style="text-align: center; margin-bottom: 30px;">
-                    Want to hear a short story about how Fair Trade helps people grow things? Tell me a product!
+                    Ready for a magical tale? Tell me a Fair Trade product (like coffee or bananas) and I'll spin a story for you!
                 </p>
                 <div class="story-input-container fade-in">
                     <input type="text" id="product-input" placeholder="e.g., coffee, bananas, chocolate" class="text-input">
-                    <button class="cta-button" id="generate-story-button">Generate Story!</button>
+                    <button class="cta-button" id="generate-story-button">Spin My Story!</button>
                 </div>
                 <div id="story-output" class="story-output fade-in">
-                    <p class="placeholder-text">Your Fair Trade story will appear here!</p>
+                    <p class="placeholder-text">Your fantastical Fair Trade story will appear right here!</p>
                 </div>
                 <div id="story-loading" style="display: none; text-align: center; margin-top: 20px; font-style: italic;">
                     <p>Generating a magical Fair Trade story... please wait!</p>
@@ -895,25 +968,29 @@
         <!-- About Us Section -->
         <section id="about-us" class="about-us-section">
             <div class="container">
-                <h2 class="section-title fade-in">Meet the Minds Behind Fair Trade Explorer</h2>
+                <h2 class="section-title fade-in">Meet the Awesome Team Behind Fair Trade Explorer</h2>
                 <p class="fade-in" style="text-align: center; margin-bottom: 40px; font-style: italic;">
-                    Inspired by a shared passion for fairness and global impact, we created this platform to spread awareness.
+                    We're a bunch of passionate folks dedicated to making the world a fairer, brighter place! ✨
                 </p>
                 <div class="quotes-grid">
                     <div class="quote-item fade-in">
-                        <blockquote>Its important to know the value of products.</blockquote>
+                        <img src="/public/images/6.jpg" alt="Guus Profile" class="profile-image" onerror="this.onerror=null;this.src='https://placehold.co/80x80/ff6600/ffffff?text=G';"> <!-- Guus's profile image -->
+                        <blockquote><span class="card-icon">💡</span> Knowing a product's true value? That's super important!</blockquote>
                         <cite>— Guus</cite>
                     </div>
                     <div class="quote-item fade-in">
-                        <blockquote>Do if honestly, do it fair</blockquote>
+                        <img src="/public/images/7.jpg" alt="Thomas Profile" class="profile-image" onerror="this.onerror=null;this.src='https://placehold.co/80x80/ff8533/ffffff?text=T';"> <!-- Thomas's profile image -->
+                        <blockquote><span class="card-icon">👍</span> Do it with honesty, do it with fairness! Always!</blockquote>
                         <cite>— Thomas</cite>
                     </div>
                     <div class="quote-item fade-in">
-                        <blockquote>If you dare, be fair!</blockquote>
+                        <img src="/public/images/8.jpg" alt="Thijs Profile" class="profile-image" onerror="this.onerror=null;this.src='https://placehold.co/80x80/ffa040/ffffff?text=T';"> <!-- Thijs's profile image -->
+                        <blockquote><span class="card-icon">💖</span> If you dare, be fair! It's a superpower!</blockquote>
                         <cite>— Thijs</cite>
                     </div>
                     <div class="quote-item fade-in">
-                        <blockquote>Those who care will always be fair.</blockquote>
+                        <img src="/public/images/9.jpg" alt="Nick Profile" class="profile-image" onerror="this.onerror=null;this.src='https://placehold.co/80x80/ffb555/ffffff?text=N';"> <!-- Nick's profile image -->
+                        <blockquote><span class="card-icon">🌈</span> Those who care will always sparkle with fairness!</blockquote>
                         <cite>— Nick</cite>
                     </div>
                 </div>
@@ -951,6 +1028,11 @@
             <audio id="audio-player-modal" controls autoplay></audio>
             <div class="lyrics-container" id="lyrics-container">
                 <!-- Lyrics will be loaded here -->
+            </div>
+            <div class="audio-controls-modal">
+                <button class="audio-button-modal" id="prev-song-button-modal">Previous</button>
+                <button class="audio-button-modal" id="play-pause-button-modal">Play</button>
+                <button class="audio-button-modal" id="next-song-button-modal">Next</button>
             </div>
         </div>
     </div>
